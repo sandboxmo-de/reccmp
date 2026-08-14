@@ -156,6 +156,10 @@ class RecCmpPartialTarget:
     # Encoding of the source code files for this target.
     encoding: str | None = None
 
+    # Whether the recomp PDB truncates symbols to 255 characters (MSVC 4.x, C4786).
+    # Affects symbol and function matching. None means "not specified".
+    truncate_symbols: bool | None = None
+
     # Relative (to project root) directory of source code files for this target.
     source_paths: tuple[Path, ...] = tuple()
 
@@ -209,6 +213,10 @@ class RecCmpTarget:
     original_path: Path
     recompiled_path: Path
     recompiled_pdb: Path
+
+    # Whether the recomp PDB truncates symbols to 255 characters (MSVC 4.x, C4786).
+    # Affects symbol and function matching.
+    truncate_symbols: bool = True
 
     # Data to set directly in the database (addresses refer to orig binary)
     data_sources: list[Path] = field(default_factory=list)
@@ -286,6 +294,9 @@ class RecCmpProject:
             recompiled_path=target.recompiled_path,
             recompiled_pdb=target.recompiled_pdb,
             encoding=target.encoding,
+            truncate_symbols=(
+                True if target.truncate_symbols is None else target.truncate_symbols
+            ),
             source_paths=target.source_paths,
             ghidra_config=ghidra,
             data_sources=data_sources,
@@ -406,6 +417,7 @@ class RecCmpProject:
                 filename=target.filename,
                 sha256=target.hash.sha256,
                 encoding=target.encoding,
+                truncate_symbols=target.truncate_symbols,
                 source_paths=source_paths,
                 ghidra_config=ghidra,
                 data_sources=data_sources,

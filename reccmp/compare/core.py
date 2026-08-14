@@ -84,6 +84,7 @@ class Compare:
     function_comparator: FunctionComparator
     data_sources: list[TextFile]
     project_aliases: ProjectAliases
+    truncate_symbols: bool
 
     # pylint: disable=too-many-arguments
     # pylint: disable=too-many-positional-arguments
@@ -97,6 +98,7 @@ class Compare:
         code_files: list[TextFile] | None = None,
         data_sources: list[TextFile] | None = None,
         project_aliases: ProjectAliases | None = None,
+        truncate_symbols: bool = True,
     ):
         self.orig_bin = orig_bin
         self.recomp_bin = recomp_bin
@@ -104,6 +106,7 @@ class Compare:
         self.target_id = target_id
         self.src_encoding = encoding or "utf-8"
         self.bin_encoding = encoding or "latin1"
+        self.truncate_symbols = truncate_symbols
         self.project_aliases = normalize_project_aliases(project_aliases or {})
 
         if isinstance(code_files, list):
@@ -162,8 +165,8 @@ class Compare:
         load_data_sources(self._db, self.data_sources)
 
         # Match using PDB and annotation data
-        match_symbols(self._db, self.report, truncate=True)
-        match_functions(self._db, self.report, truncate=True)
+        match_symbols(self._db, self.report, truncate=self.truncate_symbols)
+        match_functions(self._db, self.report, truncate=self.truncate_symbols)
         match_vtables(self._db, self.report)
         match_static_variables(self._db, self.report)
         match_variables(self._db, self.report)
@@ -256,6 +259,7 @@ class Compare:
             data_sources=data_sources,
             code_files=code_files,
             project_aliases=project_aliases,
+            truncate_symbols=target.truncate_symbols,
         )
         compare.run()
         return compare

@@ -59,6 +59,30 @@ def test_project_loading_project_only(tmp_path_factory):
     assert project.user_config_path is None
 
 
+def test_project_loading_truncate_symbols(tmp_path_factory):
+    """The truncate-symbols matching option is read from the project file
+    and defaults to on (the historical behavior)."""
+    project_root = tmp_path_factory.mktemp("project")
+    (project_root / RECCMP_PROJECT_CONFIG).write_text(textwrap.dedent(f"""\
+            targets:
+              LEGO1:
+                filename: LEGO1.dll
+                source-root: sources
+                hash:
+                  sha256: {LEGO1_SHA256}
+              MODERN1:
+                filename: MODERN1.dll
+                source-root: sources
+                truncate-symbols: false
+                hash:
+                  sha256: {LEGO1_SHA256}
+            """))
+
+    project = RecCmpProject.from_directory(project_root)
+    assert project.targets["LEGO1"].truncate_symbols is True
+    assert project.targets["MODERN1"].truncate_symbols is False
+
+
 def test_project_loading_project_and_user(tmp_path_factory):
     """Can load project.yml and combine with user.yml in the same directory."""
     project_root = tmp_path_factory.mktemp("project")

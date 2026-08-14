@@ -89,6 +89,10 @@ class ProjectFileTarget(BaseModel):
         default_factory=list,
     )
     encoding: str | None = Field(default=None)
+    truncate_symbols: bool = Field(
+        default=True,
+        validation_alias=AliasChoices("truncate-symbols", "truncate_symbols"),
+    )
     ghidra: YmlGhidraConfig = Field(default_factory=YmlGhidraConfig.default)
     report: YmlReportConfig = Field(default_factory=YmlReportConfig.default)
     marker_aliases: dict[str, str] = Field(
